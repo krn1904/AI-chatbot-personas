@@ -112,14 +112,14 @@ Blogs 1–4 into UI and deployment — optional extensions, not core learning.
 Add `chromadb` + `pypdf`; create `knowledge/<persona>/` folders + sample docs.
 *Learn:* why retrieved knowledge is separate from the persona system message.
 
-**Phase 1 — Ingest pipeline**
+**Phase 1 — Ingest pipeline** ✅
 Read a persona's docs → chunk the text → embed each chunk with Gemini → store in
 Chroma. *Learn:* chunking is what quietly decides answer quality. *Files:* new
 `ingest.py`. *Decision:* small chunks (~300–500 chars) with ~50-char overlap —
 our sample docs are short, fact-dense lines, so small keeps each retrieved piece
 precise. *Checkpoint:* explain chunk size vs overlap in your own words.
 
-**Phase 2 — Retrieval**
+**Phase 2 — Retrieval** ✅
 Embed the question, query Chroma for the nearest chunks. *Learn:* nearest-neighbor
 search; why retrieval (not the model) is the weak link. *Files:* new `rag.py`.
 *Checkpoint:* why we over-fetch then trim.
