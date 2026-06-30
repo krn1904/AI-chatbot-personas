@@ -1,2 +1,4 @@
-google-genai
-python-dotenv
+google-genai      # Gemini SDK — chat + embeddings (text-embedding-004)
+python-dotenv     # load GEMINI_API_KEY from .env
+chromadb          # local vector store: keeps chunk vectors, finds nearest neighbors
+pypdf             # extract text from PDF documents
