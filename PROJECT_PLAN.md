@@ -134,7 +134,7 @@ Each persona gets its own Chroma collection, so tutor/reviewer/coach retrieve fr
 their own docs. *Learn:* persona = behavior dial, RAG = knowledge dial, independent.
 *Files:* `ingest.py`, `rag.py`. *Checkpoint:* what happens if a persona has no docs.
 
-**Phase 5 — Sources & polish**
+**Phase 5 — Sources & polish** ✅
 Show which document each answer came from; handle "no relevant match" / "I don't
 know"; tidy errors. *Files:* `chatbot.py`, `rag.py`. *Checkpoint:* make it admit
 when the docs don't cover a question.
