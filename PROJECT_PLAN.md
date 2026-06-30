@@ -124,7 +124,7 @@ Embed the question, query Chroma for the nearest chunks. *Learn:* nearest-neighb
 search; why retrieval (not the model) is the weak link. *Files:* new `rag.py`.
 *Checkpoint:* why we over-fetch then trim.
 
-**Phase 3 — Wire RAG into the chat loop**
+**Phase 3 — Wire RAG into the chat loop** ✅
 Inject retrieved chunks into the prompt before the existing `generate_content_stream`
 call. Loop, memory, streaming unchanged. *Files:* `chatbot.py` (~15 lines).
 *Checkpoint:* trace one question end to end.
