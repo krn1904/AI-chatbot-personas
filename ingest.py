@@ -46,6 +46,15 @@ def list_personas() -> list[str]:
     return sorted(p.name for p in KNOWLEDGE_DIR.iterdir() if p.is_dir())
 
 
+def personas_with_docs() -> list[str]:
+    """Persona folders that actually contain at least one readable document."""
+    return [
+        name for name in list_personas()
+        if any(p.suffix.lower() in READABLE_SUFFIXES
+               for p in (KNOWLEDGE_DIR / name).iterdir())
+    ]
+
+
 def read_file(path: Path) -> str:
     """Return the plain text of one document, or '' if it can't be read."""
     if path.suffix.lower() == ".pdf":
@@ -121,6 +130,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--persona", help="Persona folder under knowledge/ to ingest")
     parser.add_argument("--list", action="store_true",
                         help="List personas that have a knowledge folder")
+    parser.add_argument("--all", action="store_true",
+                        help="Ingest every persona that has documents")
     return parser.parse_args()
 
 
@@ -131,6 +142,15 @@ if __name__ == "__main__":
         print("Personas with knowledge folders:")
         for name in list_personas():
             print(f"  - {name}")
+        raise SystemExit(0)
+
+    if args.all:
+        personas = personas_with_docs()
+        if not personas:
+            raise SystemExit("No personas have documents under knowledge/.")
+        for name in personas:
+            print(f"\n=== {name} ===")
+            ingest_persona(name)
         raise SystemExit(0)
 
     if not args.persona:

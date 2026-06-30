@@ -129,7 +129,7 @@ Inject retrieved chunks into the prompt before the existing `generate_content_st
 call. Loop, memory, streaming unchanged. *Files:* `chatbot.py` (~15 lines).
 *Checkpoint:* trace one question end to end.
 
-**Phase 4 — Per-persona knowledge bases**
+**Phase 4 — Per-persona knowledge bases** ✅
 Each persona gets its own Chroma collection, so tutor/reviewer/coach retrieve from
 their own docs. *Learn:* persona = behavior dial, RAG = knowledge dial, independent.
 *Files:* `ingest.py`, `rag.py`. *Checkpoint:* what happens if a persona has no docs.
