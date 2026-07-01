@@ -141,7 +141,7 @@ when the docs don't cover a question.
 
 ### Part B — User interface
 
-**Phase 6 — Streamlit UI**
+**Phase 6 — Streamlit UI** ✅
 A web page: pick a persona, chat in a proper chat window, see streamed answers and
 source citations. Calls the *same* ingest/retrieve engines — no logic rewritten.
 *Files:* new `app.py`. *Checkpoint:* the CLI and UI share one engine.
