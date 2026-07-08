@@ -9,6 +9,7 @@ per persona, or whenever its documents change:
 """
 
 import argparse
+import io
 import os
 from pathlib import Path
 
@@ -67,6 +68,18 @@ def read_file(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="ignore")
 
 
+def read_upload(name: str, data: bytes) -> str:
+    """Extract text from an uploaded file's raw bytes (PDF, txt, or md)."""
+    if name.lower().endswith(".pdf"):
+        try:
+            reader = PdfReader(io.BytesIO(data))
+            return "\n".join(page.extract_text() or "" for page in reader.pages)
+        except Exception as e:
+            print(f"  ! skipped {name}: {e}")
+            return ""
+    return data.decode("utf-8", errors="ignore")
+
+
 def chunk_text(text: str) -> list[str]:
     """Split text into overlapping fixed-size character windows."""
     text = " ".join(text.split())  # normalise whitespace
@@ -84,6 +97,34 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
         result = client.models.embed_content(model=EMBED_MODEL, contents=batch)
         vectors.extend(e.values for e in result.embeddings)
     return vectors
+
+
+def build_memory_index(files: list[tuple[str, bytes]]):
+    """Chunk + embed uploaded files into a fresh in-memory Chroma collection.
+
+    Returns the collection, or None if nothing readable was found. Uses an
+    EphemeralClient, so the index lives only in memory and vanishes with the session.
+    """
+    chunks: list[str] = []
+    sources: list[str] = []
+    for name, data in files:
+        for chunk in chunk_text(read_upload(name, data)):
+            chunks.append(chunk)
+            sources.append(name)
+
+    if not chunks:
+        return None
+
+    embeddings = embed_texts(chunks)
+    memory = chromadb.EphemeralClient()
+    collection = memory.create_collection("uploads")
+    collection.add(
+        ids=[f"upload-{i}" for i in range(len(chunks))],
+        documents=chunks,
+        embeddings=embeddings,
+        metadatas=[{"source": s} for s in sources],
+    )
+    return collection
 
 
 def ingest_persona(persona: str) -> None:

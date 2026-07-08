@@ -15,16 +15,40 @@ from engine import (
     load_persona,
     with_context,
 )
+from ingest import build_memory_index
 
 st.set_page_config(page_title="Chat with your documents", page_icon="📄")
 st.title("Chat with your documents")
 
+# --- Sidebar: upload your own documents (session-only, held in memory) ---
+st.sidebar.header("Your documents")
+uploaded = st.sidebar.file_uploader(
+    "Upload files to chat with (this session only)",
+    type=["pdf", "txt", "md"],
+    accept_multiple_files=True,
+)
+
+# Re-index only when the set of uploaded files changes (embedding costs API calls).
+signature = tuple((f.name, f.size) for f in uploaded) if uploaded else ()
+if st.session_state.get("upload_sig") != signature:
+    st.session_state.upload_sig = signature
+    if uploaded:
+        with st.sidebar, st.spinner("Indexing your documents…"):
+            files = [(f.name, f.getvalue()) for f in uploaded]
+            st.session_state.upload_index = build_memory_index(files)
+    else:
+        st.session_state.upload_index = None
+
+upload_index = st.session_state.get("upload_index")
+if upload_index is not None:
+    st.sidebar.success(f"{len(signature)} document(s) ready — your files answer first.")
+
+# --- Persona picker ---
 personas = list_personas()
 default_index = personas.index(DEFAULT_PERSONA) if DEFAULT_PERSONA in personas else 0
 persona = st.selectbox("Persona", personas, index=default_index)
 
 # Per-persona memory: each persona keeps its own conversation, like browser tabs.
-# Switching personas shows that persona's own thread instead of wiping everything.
 if "chats" not in st.session_state:
     st.session_state.chats = {}
 chat = st.session_state.chats.setdefault(persona, {"messages": [], "history": []})
@@ -47,8 +71,8 @@ if query:
     chat["history"].append(("user", query, None))
     chat["messages"].append(types.UserContent(query))
 
-    # Retrieve + build the augmented turn — the same engine the CLI uses.
-    context, sources = get_relevant_context(persona, query)
+    # Uploads win, then baked-in docs — the same engine the CLI uses.
+    context, sources = get_relevant_context(persona, query, upload_index)
     call_contents = chat["messages"][:-1] + [with_context(context, query)]
     config = build_config(load_persona(persona))
 

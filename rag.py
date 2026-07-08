@@ -13,15 +13,8 @@ from ingest import chroma, embed_texts  # reuse one embedder + one cabinet
 TOP_K = 4   # how many chunks to hand the model
 
 
-def retrieve(persona: str, query: str, k: int = TOP_K) -> list[dict]:
-    """Return the k chunks closest in meaning to the query, with source + distance."""
-    try:
-        collection = chroma.get_collection(persona)
-    except Exception:
-        raise SystemExit(
-            f"No index for '{persona}'. Build it first: python ingest.py --persona {persona}"
-        )
-
+def search(collection, query: str, k: int = TOP_K) -> list[dict]:
+    """Return the k chunks in `collection` closest in meaning to the query."""
     query_vector = embed_texts([query])[0]
     result = collection.query(query_embeddings=[query_vector], n_results=k)
 
@@ -34,6 +27,17 @@ def retrieve(persona: str, query: str, k: int = TOP_K) -> list[dict]:
         {"text": doc, "source": meta.get("source", "?"), "distance": dist}
         for doc, meta, dist in zip(documents, metadatas, distances)
     ]
+
+
+def retrieve(persona: str, query: str, k: int = TOP_K) -> list[dict]:
+    """Search a persona's on-disk (baked-in) collection."""
+    try:
+        collection = chroma.get_collection(persona)
+    except Exception:
+        raise SystemExit(
+            f"No index for '{persona}'. Build it first: python ingest.py --persona {persona}"
+        )
+    return search(collection, query, k)
 
 
 def parse_args() -> argparse.Namespace:

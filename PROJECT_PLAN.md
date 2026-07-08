@@ -146,7 +146,7 @@ A web page: pick a persona, chat in a proper chat window, see streamed answers a
 source citations. Calls the *same* ingest/retrieve engines — no logic rewritten.
 *Files:* new `app.py`. *Checkpoint:* the CLI and UI share one engine.
 
-**Phase 7 — Upload your own documents**
+**Phase 7 — Upload your own documents** ✅
 Add an upload box: users bring their own files, indexed **in-memory for the
 session** (private, no persistence needed, free). Curated personas still ship with
 their baked-in docs. **Precedence: user uploads win.** Keep uploads in a separate
