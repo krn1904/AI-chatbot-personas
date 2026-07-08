@@ -3,7 +3,19 @@
 Run with:  streamlit run app.py
 """
 
+import os
+
 import streamlit as st
+
+st.set_page_config(page_title="Chat with your documents", page_icon="📄")
+
+# API key: Streamlit Cloud provides it via st.secrets; locally the engine reads .env.
+try:
+    if "GEMINI_API_KEY" in st.secrets:
+        os.environ.setdefault("GEMINI_API_KEY", st.secrets["GEMINI_API_KEY"])
+except Exception:
+    pass  # no secrets.toml locally — the engine falls back to .env
+
 from google.genai import types
 
 from engine import (
@@ -15,9 +27,18 @@ from engine import (
     load_persona,
     with_context,
 )
-from ingest import build_memory_index
+from ingest import build_memory_index, ensure_indexes
 
-st.set_page_config(page_title="Chat with your documents", page_icon="📄")
+
+@st.cache_resource
+def _startup() -> bool:
+    """Rebuild baked-in indexes once per deploy — a fresh container has none."""
+    ensure_indexes()
+    return True
+
+
+_startup()
+
 st.title("Chat with your documents")
 
 # --- Sidebar: upload your own documents (session-only, held in memory) ---
