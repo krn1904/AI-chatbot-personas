@@ -163,7 +163,7 @@ injection). This matters more now that uploads win precedence.
 
 ### Part C — Deploy
 
-**Phase 8 — Make it deploy-ready**
+**Phase 8 — Make it deploy-ready** ✅
 Configurable paths/keys via env, rebuild-index-on-boot for curated docs, lock
 `requirements.txt`, `.gitignore` hygiene, README run instructions. *Checkpoint:*
 never depend on the server's disk surviving a restart.

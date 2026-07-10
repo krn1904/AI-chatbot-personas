@@ -166,6 +166,22 @@ def ingest_persona(persona: str) -> None:
     print(f"Done. '{persona}' now holds {collection.count()} chunks in {CHROMA_DIR.name}/.")
 
 
+def ensure_indexes() -> None:
+    """Build any missing persona indexes — safe to call on every startup.
+
+    A fresh deploy has no chroma_db/ (it's gitignored), so we rebuild the baked-in
+    indexes from the committed knowledge/ folders. Idempotent: existing, non-empty
+    collections are left alone, so it costs nothing when indexes already exist.
+    """
+    existing = {getattr(c, "name", c) for c in chroma.list_collections()}
+    for name in personas_with_docs():
+        try:
+            if name not in existing or chroma.get_collection(name).count() == 0:
+                ingest_persona(name)
+        except Exception as e:
+            print(f"(could not build index for {name}: {e})")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build a persona's document index.")
     parser.add_argument("--persona", help="Persona folder under knowledge/ to ingest")
