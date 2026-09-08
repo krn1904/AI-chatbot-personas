@@ -175,7 +175,7 @@ follow-up: AWS Lightsail with a Budgets alarm, as a cloud-experience exercise.
 
 ### Part D — Write-up
 
-**Phase 10 — Blog handover**
+**Phase 10 — Blog handover** ✅
 Fold the build into Blog 4's pending code-walkthrough (same format as the Blog 2
 handover): phase-by-phase, finished version in pieces, with a companion build log.
 
